@@ -16,6 +16,7 @@ class DB_Functions {
     // destructor
     function __destruct() {
         
+		
     }
 
 
@@ -54,41 +55,121 @@ return false;
 }
 
 }
+
 /**
+     * Storing new user
+     * returns user details
+     */ /*
+    public function storeUser($name, $email, $gcm_regid) {
+        // insert user into database
+        $result = mysql_query("INSERT INTO gcm_users(name, email, gcm_regid, created_at) VALUES('$name', '$email', '$gcm_regid', NOW())");
+        // check for successful store
+        if ($result) {
+            // get user details
+            $id = mysql_insert_id(); // last inserted id
+            $result = mysql_query("SELECT * FROM gcm_users WHERE id = $id") or die(mysql_error());
+            // return user details
+            if (mysql_num_rows($result) > 0) {
+                return mysql_fetch_array($result);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }*/
+	
+	/**
+     * Getting all users
+     */
+    public function getAllUsers() {
+        $result = mysql_query("select * FROM gcm_users");
+        return $result;
+    }
+	
+	/**
      * Adding new user to mysql database
      * returns user details
      */
-
-    public function storeUser($fname, $lname, $email, $uname, $password, $weight_gender, $weight_smoker, $pref_gender, $pref_smoker, $latitude, $longitude) {
+	
+    public function storeUser($fname, $lname, $email, $uname, $password, $weight_gender, $weight_smoker, $pref_gender, $pref_smoker, $latitude, $longitude, $gcm_regid) {
         $uuid = uniqid('', true);
-		$uluid = $uuid;
+		$uluid = uniqid('',true);
         $hash = $this->hashSSHA($password);
         $encrypted_password = $hash["encrypted"]; // encrypted password
         $salt = $hash["salt"]; // salt
-		$sql_user = "INSERT INTO users(unique_id, firstname, lastname, email, username, encrypted_password, salt, created_at, weight_gender, weight_smoker, pref_gender, pref_smoker) 
-		VALUES('$uuid', '$fname', '$lname', '$email', '$uname', '$encrypted_password', '$salt', NOW(), '$weight_gender', '$weight_smoker', '$pref_gender', '$pref_smoker')";
+		$sql_user = "INSERT INTO users(firstname, lastname, email, username, encrypted_password, salt, created_at, weight_gender, weight_smoker, pref_gender, pref_smoker) 
+		VALUES('$fname', '$lname', '$email', '$uname', '$encrypted_password', '$salt', NOW(), '$weight_gender', '$weight_smoker', '$pref_gender', '$pref_smoker')";
+		
 		$exec = mysql_query($sql_user);
 		if (!$exec) die(mysql_error());
 		
-        /*$result = mysql_query("INSERT INTO `users`(`unique_id`, `firstname`, `lastname`, `email`, `username`, `encrypted_password`, `salt`, `created_at`, `weight_gender`, `weight_smoker`, `pref_gender`, `pref_smoker`) 
-		VALUES('$uuid', '$fname', '$lname', '$email', '$uname', '$encrypted_password', '$salt', NOW(), '$weight_gender', '$weight_smoker', '$pref_gender', '$pref_smoker')");
-*/		$result_uid = mysql_insert_id();
-		$sql_location = "INSERT INTO userlocation(id, uid, latitude, longitude)
-		VALUES('$uluid','$result_uid', '$latitude','$longitude')";
+    	$result_uid = mysql_insert_id();
+		$sql_location = "INSERT INTO userlocation(uid, latitude, longitude, gcm_regid)
+		VALUES('$result_uid', '$latitude','$longitude', '$gcm_regid')";
+		//'$uluid',id, 
 		$exec = mysql_query($sql_location);
 		if (!$exec) die(mysql_error());
 
-		/*$result_userlocation = mysql_query("INSERT INTO `userlocation`(`unique_id`, `uid`, `latitude`, `longitude`)
-		VALUES('$uluid','$result_uid', '$latitude','$longitude')");*/
-		
-		
         // check for successful store
         if ($exec) {
+            // get user details  
+            $result = mysql_query("SELECT * FROM users WHERE uid = $result_uid");
+			
+			$row = mysql_fetch_array($result);
+			
+			mysql_free_result($result);
+		   // return user details
+            return $row;
+        } else {
+            return false;
+        }
+    }
+	
+	/*
+	Get GCM registration id and store
+	*/
+	
+	public function getDevice($uid) {
+		$gcm_id = $_POST["regid"];
+		
+		// update database
+		
+         $result = "UPDATE `users` SET `gcm_id` = '$gcm_id' 
+						  WHERE `uid` = '$uid'";
+		$exec = mysql_query($result);
+		if (!$exec) die(mysql_error());		
+		
+		   if ($exec) {
             // get user details 
             $uid = mysql_insert_id(); 
             $result = mysql_query("SELECT * FROM users WHERE uid = $uid");
-			//$result = mysql_query("SELECT * FROM userlocation WHERE uid = $uid");
-            // return user details
+		   // return user details
+            return mysql_fetch_array($result);
+        } else {
+            return false;
+        }
+	}
+	
+	
+	/*
+	* Store user location
+	*/
+
+	
+    public function storeLocation($uid, $latitude, $longitude) {
+		
+		// update database
+         $result = "	UPDATE `userlocation` SET `latitude` = '$latitude',`longitude` = '$longitude' 
+						  WHERE `uid` = $uid";
+		$exec = mysql_query($result);
+		if (!$exec) die(mysql_error());		
+		
+		   if ($exec) {
+            // get user details 
+            // $uid = mysql_insert_id(); 
+            $result = mysql_query("SELECT * FROM userlocation WHERE uid = $uid");
+		   // return user details
             return mysql_fetch_array($result);
         } else {
             return false;
