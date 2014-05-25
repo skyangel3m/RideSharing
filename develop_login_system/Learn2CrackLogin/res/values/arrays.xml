@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+       
+    <string-array name="Mode">
+        <item name="0">Rider</item>
+        <item name="1">Driver</item>
+
+    </string-array>
+    
+     <string-array name="ModeValues">
+        <item name="0">Rider</item>
+        <item name="1">Driver</item>
+        
+    </string-array>
+    
+     <string-array name="GenderPreferences">
+        <item name="0">Any</item>
+        <item name="1">Male</item>
+        <item name="2">Female</item>
+    </string-array>
+    
+     <string-array name="GenderValues">
+        <item name="0">Any</item>
+        <item name="1">Male</item>
+        <item name="2">Female</item>
+    </string-array>
+    
+     <string-array name="SmokerPreferences">
+        <item name="0">Any</item>
+        <item name="1">Smoker</item>
+        <item name="2">Non-smoker</item>
+    </string-array>
+    
+     <string-array name="SmokerValues">
+        <item name="0">Any</item>
+        <item name="1">Smoker</item>
+        <item name="2">Non-smoker</item>
+    </string-array>
+</resources>
